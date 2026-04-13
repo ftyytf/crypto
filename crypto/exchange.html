@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+    <title>Обмен криптовалют — CryptoFlow by Muravsky</title>
+    <meta name="robots" content="index, follow">
+    <meta name="description" content="Мгновенный обмен криптовалют на CryptoFlow by Muravsky. Лучшие курсы BTC, ETH, SOL.">
+    <meta name="keywords" content="обмен криптовалют, swap, конвертер, BTC, ETH">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Обмен криптовалют — CryptoFlow by Muravsky">
+    <meta property="og:description" content="Мгновенный обмен криптовалют на CryptoFlow by Muravsky. Лучшие курсы BTC, ETH, SOL.">
+    <meta property="og:site_name" content="CryptoFlow by Muravsky">
+    <meta property="og:locale" content="ru_RU">
+    <meta property="og:image" content="img/og-cover.png">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Обмен криптовалют — CryptoFlow by Muravsky">
+    <meta name="twitter:description" content="Мгновенный обмен криптовалют на CryptoFlow by Muravsky. Лучшие курсы BTC, ETH, SOL.">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/pages.css">
+  <link rel="stylesheet" href="css/components.css">
+<style id="preloader-style">
+  /* === PRELOADER === */
+  .nx-preloader {
+    position: fixed; inset: 0; z-index: 99999;
+    background: #0F0B1E;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 24px;
+    transition: opacity 0.5s, visibility 0.5s;
+  }
+  .nx-preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+  .nx-preloader-logo {
+    width: 72px; height: 72px;
+    animation: nx-pulse 1.5s ease-in-out infinite;
+  }
+  .nx-preloader-bar {
+    width: 200px; height: 3px; background: rgba(108,92,231,0.2);
+    border-radius: 4px; overflow: hidden;
+  }
+  .nx-preloader-bar::after {
+    content: ''; display: block; height: 100%; width: 40%;
+    background: linear-gradient(90deg, #6C5CE7, #06B6D4);
+    border-radius: 4px;
+    animation: nx-slide 1s ease-in-out infinite;
+  }
+  @keyframes nx-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.08); opacity: 0.7; }
+  }
+  @keyframes nx-slide {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(350%); }
+  }
+</style>
+<style id="zfix-global">
+  /* Global z-index fix — контент поверх particles canvas */
+  header, .header, nav, .navbar, main, .main,
+  section, .container, .content, footer, .footer,
+  .modal, .overlay, form, button, a, input,
+  select, textarea, details, summary {
+    position: relative;
+    z-index: 2;
+  }
+  #nxParticles {
+    z-index: 0 !important;
+    pointer-events: none !important;
+  }
+  .nx-preloader.hidden {
+    pointer-events: none !important;
+  }
+</style>
+</head>
+<body>
+<!-- PRELOADER -->
+<div class="nx-preloader" id="nxPreloader">
+  <img src="img/favicon.svg" alt="CryptoFlow by Muravsky" class="nx-preloader-logo">
+  <div class="nx-preloader-bar"></div>
+</div>
+<script>
+window.addEventListener('load', function() {
+  var p = document.getElementById('nxPreloader');
+  if (p) { setTimeout(function(){ p.classList.add('hidden'); }, 400); }
+});
+</script>
+  <!-- ========== HEADER ========== -->
+
+  <!-- ========== MOBILE NAV ========== -->
+
+  <!-- ===== EXCHANGE SECTION ===== -->
+  <section class="section exchange-section">
+    <div class="container">
+      <div class="section-header" style="text-align:center;margin-bottom:48px;">
+        <h1 class="section-title">Обмен криптовалют</h1>
+        <p class="section-subtitle">Мгновенный обмен по лучшим курсам без скрытых комиссий</p>
+      </div>
+
+      <div class="exchange-card">
+        <!-- FROM -->
+        <div class="exchange-row">
+          <label class="exchange-label">Вы отдаёте</label>
+          <div class="exchange-input-group">
+            <div class="ex-select" id="fromSelect">
+              <button type="button" class="ex-select-btn" id="fromSelectBtn">
+                    <span class="coin-icon-wrap"><span class="coin-icon coin-btc">₿</span></span>
+                    <span class="coin-name" id="fromCoinName">BTC</span>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M2 4l4 4 4-4"/></svg>
+                  </button>
+              <div class="ex-dropdown" id="fromDropdown">
+                <div class="ex-dropdown-search">
+                  <input type="text" id="fromSearch" placeholder="Поиск валюты..." autocomplete="off">
+                </div>
+                <div class="ex-dropdown-list" id="fromList"></div>
+              </div>
+            </div>
+            <input type="number" class="exchange-amount" id="fromAmount" placeholder="0.00" step="any">
+          </div>
+        </div>
+
+        <!-- SWAP -->
+        <div class="exchange-swap">
+          <button type="button" class="swap-btn" id="swapBtn" title="Поменять местами">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- TO -->
+        <div class="exchange-row">
+          <label class="exchange-label">Вы получаете</label>
+          <div class="exchange-input-group">
+            <div class="ex-select" id="toSelect">
+              <button type="button" class="ex-select-btn" id="toSelectBtn">
+                    <span class="coin-icon-wrap"><span class="coin-icon coin-usdt">₮</span></span>
+                    <span class="coin-name" id="toCoinName">USDT</span>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M2 4l4 4 4-4"/></svg>
+                  </button>
+              <div class="ex-dropdown" id="toDropdown">
+                <div class="ex-dropdown-search">
+                  <input type="text" id="toSearch" placeholder="Поиск валюты..." autocomplete="off">
+                </div>
+                <div class="ex-dropdown-list" id="toList"></div>
+              </div>
+            </div>
+            <input type="number" class="exchange-amount" id="toAmount" placeholder="0.00" readonly>
+          </div>
+        </div>
+
+        <!-- RATE INFO -->
+        <div class="exchange-info">
+          <div class="exchange-rate" id="exchangeRate">1 BTC ≈ 104,500 USDT</div>
+          <div class="exchange-fee">Комиссия: <span class="accent">0.1%</span></div>
+        </div>
+
+        <!-- BUTTON -->
+        <button class="btn btn-primary exchange-submit" id="exchangeBtn" onclick="doExchange()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+          Обменять
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Auth Modal -->
+
+  <script src="js/components.js"></script>
+  <script src="js/main.js"></script>
+<script>
+(function(){
+var coins=[
+{id:"btc",name:"Bitcoin",symbol:"BTC",icon:"\u20BF",price:104500,cls:"coin-btc",type:"crypto"},
+{id:"eth",name:"Ethereum",symbol:"ETH",icon:"\u039E",price:3280,cls:"coin-eth",type:"crypto"},
+{id:"usdt",name:"Tether",symbol:"USDT",icon:"\u20AE",price:1,cls:"coin-usdt",type:"crypto"},
+{id:"bnb",name:"BNB",symbol:"BNB",icon:"B",price:710,cls:"coin-bnb",type:"crypto"},
+{id:"sol",name:"Solana",symbol:"SOL",icon:"S",price:178,cls:"coin-sol",type:"crypto"},
+{id:"xrp",name:"Ripple",symbol:"XRP",icon:"X",price:2.48,cls:"coin-xrp",type:"crypto"},
+{id:"ada",name:"Cardano",symbol:"ADA",icon:"A",price:0.82,cls:"coin-ada",type:"crypto"},
+{id:"doge",name:"Dogecoin",symbol:"DOGE",icon:"D",price:0.24,cls:"coin-doge",type:"crypto"},
+{id:"dot",name:"Polkadot",symbol:"DOT",icon:"\u25CF",price:8.9,cls:"coin-dot",type:"crypto"},
+{id:"matic",name:"Polygon",symbol:"MATIC",icon:"M",price:0.58,cls:"coin-matic",type:"crypto"},
+{id:"link",name:"Chainlink",symbol:"LINK",icon:"\u2B21",price:18.5,cls:"coin-link",type:"crypto"},
+{id:"avax",name:"Avalanche",symbol:"AVAX",icon:"A",price:42,cls:"coin-avax",type:"crypto"},
+{id:"uni",name:"Uniswap",symbol:"UNI",icon:"U",price:12.4,cls:"coin-uni",type:"crypto"},
+{id:"ltc",name:"Litecoin",symbol:"LTC",icon:"\u0141",price:115,cls:"coin-ltc",type:"crypto"},
+{id:"atom",name:"Cosmos",symbol:"ATOM",icon:"\u269B",price:11.2,cls:"coin-atom",type:"crypto"},
+{id:"ton",name:"Toncoin",symbol:"TON",icon:"T",price:7.2,cls:"coin-ton",type:"crypto"},
+{id:"trx",name:"TRON",symbol:"TRX",icon:"T",price:0.27,cls:"coin-trx",type:"crypto"},
+{id:"shib",name:"Shiba Inu",symbol:"SHIB",icon:"S",price:0.000027,cls:"coin-shib",type:"crypto"},
+{id:"near",name:"NEAR",symbol:"NEAR",icon:"N",price:6.5,cls:"coin-near",type:"crypto"},
+{id:"arb",name:"Arbitrum",symbol:"ARB",icon:"A",price:1.1,cls:"coin-arb",type:"crypto"},
+{id:"op",name:"Optimism",symbol:"OP",icon:"O",price:2.3,cls:"coin-op",type:"crypto"},
+{id:"apt",name:"Aptos",symbol:"APT",icon:"A",price:8.2,cls:"coin-apt",type:"crypto"},
+{id:"sui",name:"Sui",symbol:"SUI",icon:"S",price:3.6,cls:"coin-sui",type:"crypto"},
+{id:"inj",name:"Injective",symbol:"INJ",icon:"I",price:24,cls:"coin-inj",type:"crypto"},
+{id:"pepe",name:"Pepe",symbol:"PEPE",icon:"P",price:0.0000088,cls:"coin-pepe",type:"crypto"},
+{id:"usd",name:"US Dollar",symbol:"USD",icon:"$",price:1,cls:"coin-usd",type:"fiat"},
+{id:"eur",name:"Euro",symbol:"EUR",icon:"\u20AC",price:1.09,cls:"coin-eur",type:"fiat"},
+{id:"rub",name:"Russian Ruble",symbol:"RUB",icon:"\u20BD",price:0.0106,cls:"coin-rub",type:"fiat"},
+{id:"gbp",name:"British Pound",symbol:"GBP",icon:"\u00A3",price:1.27,cls:"coin-gbp",type:"fiat"},
+{id:"cny",name:"Chinese Yuan",symbol:"CNY",icon:"\u00A5",price:0.138,cls:"coin-cny",type:"fiat"},
+{id:"jpy",name:"Japanese Yen",symbol:"JPY",icon:"\u00A5",price:0.0067,cls:"coin-jpy",type:"fiat"},
+{id:"try",name:"Turkish Lira",symbol:"TRY",icon:"\u20BA",price:0.031,cls:"coin-try",type:"fiat"},
+{id:"uah",name:"Ukrainian Hryvnia",symbol:"UAH",icon:"\u20B4",price:0.024,cls:"coin-uah",type:"fiat"},
+{id:"kzt",name:"Kazakh Tenge",symbol:"KZT",icon:"\u20B8",price:0.002,cls:"coin-kzt",type:"fiat"},
+{id:"aed",name:"UAE Dirham",symbol:"AED",icon:"\u062F",price:0.272,cls:"coin-aed",type:"fiat"},
+{id:"inr",name:"Indian Rupee",symbol:"INR",icon:"\u20B9",price:0.012,cls:"coin-inr",type:"fiat"},
+{id:"chf",name:"Swiss Franc",symbol:"CHF",icon:"Fr",price:1.13,cls:"coin-chf",type:"fiat"},
+{id:"pln",name:"Polish Zloty",symbol:"PLN",icon:"z\u0142",price:0.257,cls:"coin-pln",type:"fiat"},
+{id:"gel",name:"Georgian Lari",symbol:"GEL",icon:"\u20BE",price:0.366,cls:"coin-gel",type:"fiat"}
+];
+
+var geckoMap={btc:"bitcoin",eth:"ethereum",usdt:"tether",bnb:"binancecoin",sol:"solana",xrp:"ripple",ada:"cardano",doge:"dogecoin",dot:"polkadot",matic:"matic-network",link:"chainlink",avax:"avalanche-2",uni:"uniswap",ltc:"litecoin",atom:"cosmos",ton:"the-open-network",trx:"tron",shib:"shiba-inu",near:"near",arb:"arbitrum",op:"optimism",apt:"aptos",sui:"sui",inj:"injective-protocol",pepe:"pepe"};
+
+var fromCoin=coins[0],toCoin=coins[2];
+
+function fetchPrices(){
+  var ids=[];for(var k in geckoMap)ids.push(geckoMap[k]);
+  fetch("https://api.coingecko.com/api/v3/simple/price?ids="+ids.join(",")+"&vs_currencies=usd")
+    .then(function(r){return r.json()})
+    .then(function(d){coins.forEach(function(c){if(c.type!=="crypto")return;var g=geckoMap[c.id];if(g&&d[g]&&d[g].usd)c.price=d[g].usd});calc()}).catch(function(){});
+  fetch("https://api.exchangerate-api.com/v4/latest/USD")
+    .then(function(r){return r.json()})
+    .then(function(d){if(d&&d.rates)coins.forEach(function(c){if(c.type!=="fiat")return;if(d.rates[c.symbol])c.price=1/d.rates[c.symbol]});calc()}).catch(function(){});
+}
+fetchPrices();setInterval(fetchPrices,60000);
+
+function renderList(listEl,searchEl,exclude,onSelect,filterType){
+  var q=(searchEl.value||"").toLowerCase();
+  var ft=filterType||"crypto";
+  listEl.innerHTML="";
+  var count=0;
+  coins.forEach(function(c){
+    if(c.id===exclude)return;
+    if(c.type!==ft)return;
+    if(q&&c.name.toLowerCase().indexOf(q)===-1&&c.symbol.toLowerCase().indexOf(q)===-1)return;
+    count++;
+    var it=document.createElement("div");it.className="ex-coin-item";
+    var ps=c.price<0.01?c.price.toFixed(6):c.price.toLocaleString("en-US",{maximumFractionDigits:2});
+    it.innerHTML="<span class=\"coin-icon "+c.cls+"\">"+c.icon+"</span><div class=\"coin-info\"><span class=\"coin-ticker\">"+c.symbol+"</span><span class=\"coin-fullname\">"+c.name+"</span></div><span class=\"coin-price\">$"+ps+"</span>";
+    it.addEventListener("click",function(){onSelect(c)});
+    listEl.appendChild(it);
+  });
+  if(count===0){var em=document.createElement("div");em.className="ex-coin-item";em.style.justifyContent="center";em.style.opacity="0.4";em.innerHTML="<span>Ничего не найдено</span>";listEl.appendChild(em)}
+}
+
+function buildTabs(dd,searchEl,listEl,exclude,onSelect){
+  var old=dd.querySelector(".ex-dropdown-tabs");if(old)old.remove();
+  var oldH=dd.querySelector(".ex-dropdown-header");if(oldH)oldH.style.display="none";
+  var tabsDiv=document.createElement("div");tabsDiv.className="ex-dropdown-tabs";
+  var cc=0,fc=0;
+  coins.forEach(function(c){if(c.id===exclude)return;if(c.type==="crypto")cc++;if(c.type==="fiat")fc++});
+  var bC=document.createElement("button");bC.type="button";bC.className="ex-dropdown-tab active";bC.setAttribute("data-tab","crypto");bC.innerHTML="\u26D3 Крипто <span class=\"tab-count\">"+cc+"</span>";
+  var bF=document.createElement("button");bF.type="button";bF.className="ex-dropdown-tab";bF.setAttribute("data-tab","fiat");bF.innerHTML="\uD83C\uDFE6 Фиат <span class=\"tab-count\">"+fc+"</span>";
+  tabsDiv.appendChild(bC);tabsDiv.appendChild(bF);
+  var sw=dd.querySelector(".ex-search-wrap");
+  if(sw)dd.insertBefore(tabsDiv,sw);else dd.insertBefore(tabsDiv,dd.firstChild);
+  var at=dd._activeType||"crypto";
+  bC.classList.toggle("active",at==="crypto");bF.classList.toggle("active",at==="fiat");
+  function sw2(type){at=type;dd._activeType=type;bC.classList.toggle("active",type==="crypto");bF.classList.toggle("active",type==="fiat");renderList(listEl,searchEl,exclude,onSelect,type)}
+  bC.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();sw2("crypto")});
+  bF.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();sw2("fiat")});
+  return at;
+}
+
+function setFrom(c){fromCoin=c;document.getElementById("fromCoinName").textContent=c.symbol;document.querySelector("#fromSelectBtn .coin-icon-wrap").innerHTML="<span class=\"coin-icon "+c.cls+"\">"+c.icon+"</span>";closeAll();calc()}
+function setTo(c){toCoin=c;document.getElementById("toCoinName").textContent=c.symbol;document.querySelector("#toSelectBtn .coin-icon-wrap").innerHTML="<span class=\"coin-icon "+c.cls+"\">"+c.icon+"</span>";closeAll();calc()}
+
+function closeAll(){
+  var f=document.getElementById("fromDropdown"),t=document.getElementById("toDropdown");
+  if(f){f.classList.remove("open");var x=f.querySelector(".ex-dropdown-tabs");if(x)x.remove()}
+  if(t){t.classList.remove("open");var y=t.querySelector(".ex-dropdown-tabs");if(y)y.remove()}
+}
+
+function calc(){
+  var a=parseFloat(document.getElementById("fromAmount").value)||0;
+  var r=fromCoin.price/toCoin.price;var res=a*r*0.995;
+  document.getElementById("toAmount").value=res?res.toFixed(6):"";
+  var rs=r<0.001?r.toFixed(8):(r<1?r.toFixed(6):r.toLocaleString("en-US",{maximumFractionDigits:2}));
+  document.getElementById("exchangeRate").textContent="1 "+fromCoin.symbol+" \u2248 "+rs+" "+toCoin.symbol;
+}
+
+function openDD(ddId,searchId,listId,exclude,onSelect){
+  var dd=document.getElementById(ddId);if(!dd)return;
+  dd.classList.add("open");
+  var se=document.getElementById(searchId);if(se)se.value="";
+  var list=document.getElementById(listId);
+  var at=buildTabs(dd,se,list,exclude,onSelect);
+  renderList(list,se,exclude,onSelect,at);
+  if(se)se.focus();
+}
+
+document.addEventListener("click",function(e){
+  var fb=document.getElementById("fromSelectBtn"),tb=document.getElementById("toSelectBtn");
+  var fd=document.getElementById("fromDropdown"),td=document.getElementById("toDropdown");
+  if(!fb||!tb)return;
+  if(fb.contains(e.target)){e.preventDefault();e.stopPropagation();var w=fd.classList.contains("open");closeAll();if(!w)openDD("fromDropdown","fromSearch","fromList",toCoin.id,setFrom);return}
+  if(tb.contains(e.target)){e.preventDefault();e.stopPropagation();var w2=td.classList.contains("open");closeAll();if(!w2)openDD("toDropdown","toSearch","toList",fromCoin.id,setTo);return}
+  if(fd&&!fd.contains(e.target)&&td&&!td.contains(e.target))closeAll();
+},true);
+
+var fs=document.getElementById("fromSearch");if(fs)fs.addEventListener("input",function(){var fd=document.getElementById("fromDropdown");renderList(document.getElementById("fromList"),this,toCoin.id,setFrom,fd._activeType||"crypto")});
+var ts=document.getElementById("toSearch");if(ts)ts.addEventListener("input",function(){var td=document.getElementById("toDropdown");renderList(document.getElementById("toList"),this,fromCoin.id,setTo,td._activeType||"crypto")});
+var fa=document.getElementById("fromAmount");if(fa)fa.addEventListener("input",calc);
+var sb=document.getElementById("swapBtn");if(sb)sb.addEventListener("click",function(){var t=fromCoin;setFrom(toCoin);setTo(t);calc()});
+
+document.getElementById("fromAmount").value=1;calc();
+
+var params=new URLSearchParams(window.location.search);
+var pF=params.get("from"),pT=params.get("to"),pA=params.get("amount");
+if(pF){var fc=coins.find(function(c){return c.symbol===pF});if(fc)setFrom(fc)}
+if(pT){var tc=coins.find(function(c){return c.symbol===pT});if(tc)setTo(tc)}
+if(pA){document.getElementById("fromAmount").value=pA;calc()}
+
+window.exFromCoin=function(){return fromCoin};
+window.exToCoin=function(){return toCoin};
+console.log("exchange.js loaded: "+coins.length+" coins");
+})();
+
+function doExchange(){
+  var amt=document.getElementById("fromAmount").value;
+  if(!amt||parseFloat(amt)<=0){alert("Введите сумму");return}
+  var result=document.getElementById("toAmount").value;
+  var fc=window.exFromCoin(),tc=window.exToCoin();
+  var o=document.createElement("div");
+  o.style.cssText="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:10000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px)";
+  o.innerHTML='<div style="background:linear-gradient(135deg,rgba(99,102,241,0.15),rgba(139,92,246,0.1));border:1px solid rgba(99,102,241,0.3);border-radius:24px;padding:48px;text-align:center;max-width:480px;width:90%"><div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:36px;color:#fff">\u2713</div><h2 style="color:#fff;margin-bottom:12px">Обмен успешен!</h2><p style="color:rgba(255,255,255,0.7);font-size:18px;margin-bottom:8px"><span class="coin-icon '+fc.cls+'" style="display:inline-flex;width:24px;height:24px;font-size:12px;vertical-align:middle;margin-right:4px">'+fc.icon+'</span>'+parseFloat(amt).toFixed(6)+" "+fc.symbol+'</p><p style="color:rgba(99,102,241,0.8);font-size:24px;margin-bottom:8px">\u2193</p><p style="color:rgba(255,255,255,0.7);font-size:18px;margin-bottom:24px"><span class="coin-icon '+tc.cls+'" style="display:inline-flex;width:24px;height:24px;font-size:12px;vertical-align:middle;margin-right:4px">'+tc.icon+'</span>'+parseFloat(result).toFixed(6)+" "+tc.symbol+'</p><button onclick="this.closest(\'div[style]\').parentElement.remove()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;padding:14px 40px;border-radius:12px;font-size:16px;cursor:pointer;font-weight:600">Закрыть</button></div>';
+  document.body.appendChild(o);
+}
+</script>
+<script src="js/particles.js"></script>
+<script id="url-params-init">
+/* Читаем параметры из URL (от калькулятора на главной) */
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var fromCur = params.get('from');
+  var toCur = params.get('to');
+  var amount = params.get('amount');
+  
+  if (fromCur || toCur || amount) {
+    console.log('[EXCHANGE] URL params:', { from: fromCur, to: toCur, amount: amount });
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      /* Пробуем заполнить поля */
+      var inputs = document.querySelectorAll('input[type="number"], input[type="text"]');
+      var selects = document.querySelectorAll('select');
+      
+      if (amount && inputs[0]) {
+        inputs[0].value = amount;
+        inputs[0].dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      
+      if (fromCur && selects[0]) {
+        for (var i = 0; i < selects[0].options.length; i++) {
+          if (selects[0].options[i].value === fromCur || selects[0].options[i].text.includes(fromCur)) {
+            selects[0].selectedIndex = i;
+            selects[0].dispatchEvent(new Event('change', { bubbles: true }));
+            break;
+          }
+        }
+      }
+      
+      if (toCur && selects[1]) {
+        for (var i = 0; i < selects[1].options.length; i++) {
+          if (selects[1].options[i].value === toCur || selects[1].options[i].text.includes(toCur)) {
+            selects[1].selectedIndex = i;
+            selects[1].dispatchEvent(new Event('change', { bubbles: true }));
+            break;
+          }
+        }
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

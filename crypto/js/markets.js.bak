@@ -1,0 +1,294 @@
+﻿/* ============================================
+   CryptoFlow by Muravsky — Markets Page Logic
+   ============================================ */
+(function(){
+  'use strict';
+
+  var coins = [
+    {id:'bitcoin',         code:'BTC',  name:'Bitcoin',   icon:'\u20BF', color:'#F7931A'},
+    {id:'ethereum',        code:'ETH',  name:'Ethereum',  icon:'\u039E', color:'#627EEA'},
+    {id:'tether',          code:'USDT', name:'Tether',    icon:'\u20AE', color:'#26A17B'},
+    {id:'binancecoin',     code:'BNB',  name:'BNB',       icon:'\u25C6', color:'#F3BA2F'},
+    {id:'solana',          code:'SOL',  name:'Solana',    icon:'\u25CE', color:'#9945FF'},
+    {id:'ripple',          code:'XRP',  name:'Ripple',    icon:'\u2715', color:'#00AAE4'},
+    {id:'cardano',         code:'ADA',  name:'Cardano',   icon:'\u25C7', color:'#0033AD'},
+    {id:'dogecoin',        code:'DOGE', name:'Dogecoin',  icon:'\u00D0', color:'#C2A633'},
+    {id:'polkadot',        code:'DOT',  name:'Polkadot',  icon:'\u25CF', color:'#E6007A'},
+    {id:'the-open-network',code:'TON',  name:'Toncoin',   icon:'\u25C8', color:'#0098EA'},
+    {id:'litecoin',        code:'LTC',  name:'Litecoin',  icon:'\u0141', color:'#BFBBBB'},
+    {id:'avalanche-2',     code:'AVAX', name:'Avalanche', icon:'\u25B2', color:'#E84142'},
+    {id:'chainlink',       code:'LINK', name:'Chainlink', icon:'\u2B21', color:'#2A5ADA'},
+    {id:'tron',            code:'TRX',  name:'TRON',      icon:'\u2B2B', color:'#FF0013'},
+    {id:'matic-network',   code:'MATIC',name:'Polygon',   icon:'\u2B21', color:'#8247E5'},
+    {id:'shiba-inu',       code:'SHIB', name:'Shiba Inu', icon:'\u0160', color:'#FFA409'}
+  ];
+
+  var marketData = {};
+  var charts = {};
+  var currentMainCoin = 'bitcoin';
+
+  document.addEventListener('DOMContentLoaded', function(){
+    initCoinButtons();
+    fetchMarketData();
+    fetchHistory('bitcoin', 'btcChart', '#F7931A');
+    fetchHistory('ethereum', 'ethChart', '#627EEA');
+    fetchHistory('bitcoin', 'mainChart', '#F7931A', true);
+
+    /* Auto refresh every 60 seconds */
+    setInterval(fetchMarketData, 60000);
+
+    var refreshBtn = document.getElementById('refreshBtn');
+    if(refreshBtn){
+      refreshBtn.addEventListener('click', function(){
+        refreshBtn.disabled = true;
+        refreshBtn.textContent = 'Обновление...';
+        Promise.all([
+          fetchMarketData(),
+          fetchHistory('bitcoin', 'btcChart', '#F7931A'),
+          fetchHistory('ethereum', 'ethChart', '#627EEA'),
+          fetchHistory(currentMainCoin, 'mainChart', getCoinColor(currentMainCoin), true)
+        ]).then(function(){
+          refreshBtn.disabled = false;
+          refreshBtn.textContent = 'Обновить';
+        }).catch(function(){
+          refreshBtn.disabled = false;
+          refreshBtn.textContent = 'Обновить';
+        });
+      });
+    }
+  });
+
+  function getCoinColor(id){
+    var c = coins.find(function(x){ return x.id === id; });
+    return c ? c.color : '#6366f1';
+  }
+
+  function initCoinButtons(){
+    var wrap = document.getElementById('chartCoinBtns');
+    if(!wrap) return;
+    var topCoins = ['bitcoin','ethereum','solana','binancecoin','ripple','dogecoin'];
+    topCoins.forEach(function(id){
+      var coin = coins.find(function(c){ return c.id === id; });
+      if(!coin) return;
+      var btn = document.createElement('button');
+      btn.className = 'btn';
+      btn.style.cssText = 'padding:6px 14px;font-size:0.85rem;border-radius:8px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:inherit;cursor:pointer;transition:all 0.2s;';
+      btn.textContent = coin.code;
+      if(id === 'bitcoin'){
+        btn.style.background = coin.color + '30';
+        btn.style.borderColor = coin.color;
+      }
+      btn.addEventListener('click', function(){
+        currentMainCoin = id;
+        wrap.querySelectorAll('button').forEach(function(b){
+          b.style.background = 'rgba(255,255,255,0.05)';
+          b.style.borderColor = 'rgba(255,255,255,0.12)';
+        });
+        btn.style.background = coin.color + '30';
+        btn.style.borderColor = coin.color;
+        fetchHistory(id, 'mainChart', coin.color, true);
+      });
+      wrap.appendChild(btn);
+    });
+  }
+
+  function fetchMarketData(){
+    var ids = coins.map(function(c){ return c.id; }).join(',');
+    var url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=' + ids + '&order=market_cap_desc&sparkline=true&price_change_percentage=24h';
+
+    return fetch(url)
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        if(!Array.isArray(data)) throw new Error('bad data');
+        data.forEach(function(item){
+          marketData[item.id] = item;
+        });
+        renderTable();
+        updateStatus(true);
+      })
+      .catch(function(){
+        updateStatus(false);
+      });
+  }
+
+  function updateStatus(ok){
+    var el = document.getElementById('marketStatus');
+    if(!el) return;
+    if(ok){
+      var t = new Date().toLocaleTimeString('ru-RU');
+      el.textContent = 'Обновлено: ' + t;
+      el.style.color = '#22c55e';
+    } else {
+      el.textContent = 'Ошибка соединения';
+      el.style.color = '#ef4444';
+    }
+  }
+
+  function renderTable(){
+    var tbody = document.getElementById('marketTableBody');
+    if(!tbody) return;
+    tbody.innerHTML = '';
+
+    coins.forEach(function(coin, idx){
+      var data = marketData[coin.id];
+      if(!data) return;
+
+      var tr = document.createElement('tr');
+
+      /* # */
+      var tdNum = document.createElement('td');
+      tdNum.textContent = idx + 1;
+      tdNum.style.opacity = '0.6';
+      tr.appendChild(tdNum);
+
+      /* Coin */
+      var tdCoin = document.createElement('td');
+      tdCoin.innerHTML = '<div class="coin-cell"><span class="coin-icon" style="color:' + coin.color + ';text-shadow:0 0 8px ' + coin.color + '40;">' + coin.icon + '</span><div><div class="coin-name">' + coin.code + '</div><div class="coin-full">' + coin.name + '</div></div></div>';
+      tr.appendChild(tdCoin);
+
+      /* Price */
+      var tdPrice = document.createElement('td');
+      var price = data.current_price || 0;
+      tdPrice.style.fontWeight = '600';
+      tdPrice.textContent = '$' + (price < 0.01 ? price.toFixed(6) : price.toLocaleString('en-US', {maximumFractionDigits: 2}));
+      tr.appendChild(tdPrice);
+
+      /* Change 24h */
+      var tdChange = document.createElement('td');
+      var change = data.price_change_percentage_24h || 0;
+      tdChange.className = change >= 0 ? 'price-up' : 'price-down';
+      tdChange.style.fontWeight = '600';
+      tdChange.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+      tr.appendChild(tdChange);
+
+      /* Sparkline */
+      var tdSpark = document.createElement('td');
+      tdSpark.className = 'sparkline-cell';
+      var canvas = document.createElement('canvas');
+      canvas.id = 'spark_' + coin.code;
+      tdSpark.appendChild(canvas);
+      tr.appendChild(tdSpark);
+
+      tbody.appendChild(tr);
+
+      /* Draw sparkline */
+      if(data.sparkline_in_7d && data.sparkline_in_7d.price){
+        drawSparkline(canvas, data.sparkline_in_7d.price, change >= 0 ? '#22c55e' : '#ef4444');
+      }
+    });
+  }
+
+  function drawSparkline(canvas, prices, color){
+    var ctx = canvas.getContext('2d');
+    var w = canvas.width = 100;
+    var h = canvas.height = 32;
+    var min = Math.min.apply(null, prices);
+    var max = Math.max.apply(null, prices);
+    var range = max - min || 1;
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+
+    prices.forEach(function(p, i){
+      var x = (i / (prices.length - 1)) * w;
+      var y = h - ((p - min) / range) * h;
+      if(i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+
+    ctx.stroke();
+  }
+
+  function fetchHistory(coinId, canvasId, color, isMain){
+    var days = isMain ? 7 : 1;
+    var url = 'https://api.coingecko.com/api/v3/coins/' + coinId + '/market_chart?vs_currency=usd&days=' + days;
+
+    return fetch(url)
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        if(!data.prices) return;
+        var labels = data.prices.map(function(p){
+          var d = new Date(p[0]);
+          return isMain ? (d.getMonth()+1) + '/' + d.getDate() : d.getHours() + ':00';
+        });
+        var values = data.prices.map(function(p){ return p[1]; });
+        renderChart(canvasId, labels, values, color, isMain);
+      })
+      .catch(function(){});
+  }
+
+  function renderChart(canvasId, labels, values, color, isMain){
+    var canvas = document.getElementById(canvasId);
+    if(!canvas || typeof Chart === 'undefined') return;
+
+    if(charts[canvasId]){
+      charts[canvasId].destroy();
+    }
+
+    var ctx = canvas.getContext('2d');
+    var gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, color + '60');
+    gradient.addColorStop(1, color + '05');
+
+    charts[canvasId] = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'USD',
+          data: values,
+          borderColor: color,
+          backgroundColor: gradient,
+          borderWidth: 2,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: color
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderColor: color,
+            borderWidth: 1,
+            callbacks: {
+              label: function(ctx){
+                return '$' + ctx.parsed.y.toLocaleString('en-US', {maximumFractionDigits: 2});
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: { color: 'rgba(255,255,255,0.5)', maxTicksLimit: 8 }
+          },
+          y: {
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: {
+              color: 'rgba(255,255,255,0.5)',
+              callback: function(v){ return '$' + v.toLocaleString('en-US'); }
+            }
+          }
+        },
+        interaction: {
+          mode: 'nearest',
+          intersect: false
+        }
+      }
+    });
+  }
+
+})();
+

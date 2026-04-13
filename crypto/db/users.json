@@ -1,0 +1,26 @@
+﻿{
+  "_info": "NebulaX Users Database — хранится локально в localStorage + этот файл как бэкап-шаблон",
+  "_note": "Пароли хешируются через SHA-256 на клиенте. В продакшене используйте серверную БД.",
+  "users": [
+    {
+      "id": 1,
+      "name": "Admin",
+      "email": "admin@nebulax.io",
+      "passwordHash": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+      "role": "admin",
+      "verified": true,
+      "createdAt": "2025-01-01T00:00:00Z",
+      "lastLogin": null
+    },
+    {
+      "id": 2,
+      "name": "Demo User",
+      "email": "demo@nebulax.io",
+      "passwordHash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+      "role": "user",
+      "verified": true,
+      "createdAt": "2025-01-15T12:00:00Z",
+      "lastLogin": null
+    }
+  ]
+}
